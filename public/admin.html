@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Chat Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #agentInterface {
+            display: flex;
+            height: 100vh;
+        }
+        #userList {
+            width: 25%;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+        }
+        #chatArea {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        #chatMessages {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: scroll;
+            border-bottom: 1px solid #ccc;
+        }
+        #chatInput {
+            display: flex;
+            padding: 10px;
+        }
+        #chatInput input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        #chatInput button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .user {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .user:hover {
+            background-color: #f0f0f0;
+        }
+        .user.active {
+            background-color: #e0e0ff;
+        }
+        #closeChatBtn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="agentInterface">
+    <div id="userList">
+        <h3>Active Users</h3>
+        <div id="userListContainer"></div>
+    </div>
+    <div id="chatArea">
+        <div id="chatMessages"></div>
+        <div id="chatInput">
+            <input type="text" id="agentMessageInput" placeholder="Type a message..." />
+            <button id="sendAgentMessageBtn">Send</button>
+        </div>
+        <button id="closeChatBtn">Close Chat</button>
+    </div>
+</div>
+
+<script>
+    const userListContainer = document.getElementById('userListContainer');
+    const chatMessages = document.getElementById('chatMessages');
+    const agentMessageInput = document.getElementById('agentMessageInput');
+    const sendAgentMessageBtn = document.getElementById('sendAgentMessageBtn');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+
+    let selectedUser = null;
+
+    // Fetch active users
+    function fetchActiveUsers() {
+        fetch('/api/getActiveUsers')
+            .then(response => response.json())
+            .then(users => {
+                userListContainer.innerHTML = '';
+                users.forEach(user => {
+                    const userElem = document.createElement('div');
+                    userElem.classList.add('user');
+                    userElem.textContent = user;
+                    userElem.onclick = () => selectUser(user, userElem);
+                    userListContainer.appendChild(userElem);
+                });
+            });
+    }
+
+    // Select a user and load their messages
+    function selectUser(username, userElem) {
+        selectedUser = username;
+
+        // Highlight selected user
+        const userElems = document.querySelectorAll('.user');
+        userElems.forEach(elem => elem.classList.remove('active'));
+        userElem.classList.add('active');
+
+        // Load messages for the selected user
+        loadMessages(username);
+    }
+
+    // Load messages for the selected user
+    function loadMessages(username) {
+        fetch(`/api/agent/messages/${username}`)
+            .then(response => response.json())
+            .then(messages => {
+                chatMessages.innerHTML = '';
+                messages.forEach(msg => {
+                    const messageElem = document.createElement('div');
+                    messageElem.textContent = `${msg.agent ? 'Agent' : msg.username}: ${msg.message}`;
+                    chatMessages.appendChild(messageElem);
+                });
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Poll for new messages every second
+                setInterval(() => {
+                    fetch(`/api/agent/messages/${username}`)
+                        .then(response => response.json())
+                        .then(messages => {
+                            chatMessages.innerHTML = '';
+                            messages.forEach(msg => {
+                                const messageElem = document.createElement('div');
+                                messageElem.textContent = `${msg.agent ? 'Agent' : msg.username}: ${msg.message}`;
+                                chatMessages.appendChild(messageElem);
+                            });
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        });
+                }, 1000);
+            })
+            .catch(err => console.error('Error fetching messages:', err));
+    }
+
+    // Send message as an agent
+    sendAgentMessageBtn.addEventListener('click', () => {
+        if (selectedUser && agentMessageInput.value) {
+            const payload = {
+                username: selectedUser,
+                message: agentMessageInput.value,
+                agent: true
+            };
+            fetch('/api/sendAgentMessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            }).then(() => {
+                agentMessageInput.value = '';
+                loadMessages(selectedUser);
+            });
+        }
+    });
+
+    // Close the chat and delete messages for the selected user
+    closeChatBtn.addEventListener('click', () => {
+        if (selectedUser && confirm(`Are you sure you want to close the chat with ${selectedUser}?`)) {
+            fetch('/api/deleteSession', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: selectedUser }),
+            }).then(() => {
+                chatMessages.innerHTML = '';
+                selectedUser = null;
+                fetchActiveUsers(); // Refresh user list
+            });
+        }
+    });
+
+    // Fetch active users periodically
+    setInterval(fetchActiveUsers, 5000);
+    fetchActiveUsers();
+</script>
+
+</body>
+</html>

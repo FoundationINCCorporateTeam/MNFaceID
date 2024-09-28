@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition</title>
+    <style>
+        video, canvas {
+            border: 1px solid black;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Face Recognition with Webcam</h1>
+    
+    <!-- Video element for webcam feed -->
+    <video id="video" width="640" height="480" autoplay></video>
+    
+    <!-- Canvas element to capture an image from the video feed -->
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <!-- Buttons for capturing image and sending to the server -->
+    <button id="captureBtn">Capture Image</button>
+    <button id="recognizeBtn">Recognize Face</button>
+    
+    <!-- Display the result from the server -->
+    <h2 id="result"></h2>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const recognizeBtn = document.getElementById('recognizeBtn');
+        const resultText = document.getElementById('result');
+        
+        // Access the webcam and stream the video to the video element
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => console.error("Camera access error: ", err));
+
+        // Capture the image from the video stream and draw it on the canvas
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            alert('Image captured!');
+        });
+
+        // Send the captured image to the server for face recognition
+        recognizeBtn.addEventListener('click', async () => {
+            // Convert the canvas image to a blob (file-like object)
+            const blob = await new Promise(resolve => canvas.toBlob(resolve));
+
+            // Create a form data object to send the image to the server
+            const formData = new FormData();
+            formData.append('image', blob, 'captured-image.png');
+
+            // Send the image to the backend via POST request
+            fetch('/recognize', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultText.innerText = data.message;
+            })
+            .catch(err => console.error('Error recognizing face:', err));
+        });
+    </script>
+</body>
+</html>
