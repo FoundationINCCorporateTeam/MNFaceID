@@ -62,6 +62,25 @@
             border: none;
             cursor: pointer;
         }
+        #chatbotResponses {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        .responseCard {
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #e7f3ff;
+        }
+        .responseCard h4 {
+            margin: 0;
+            color: #0056b3;
+        }
+        .responseCard p {
+            margin: 5px 0 0;
+        }
     </style>
 </head>
 <body>
@@ -78,6 +97,10 @@
             <button id="sendAgentMessageBtn">Send</button>
         </div>
         <button id="closeChatBtn">Close Chat</button>
+        <div id="chatbotResponses">
+            <h3>Chatbot Responses</h3>
+            <div id="chatbotResponsesContainer"></div>
+        </div>
     </div>
 </div>
 
@@ -87,6 +110,7 @@
     const agentMessageInput = document.getElementById('agentMessageInput');
     const sendAgentMessageBtn = document.getElementById('sendAgentMessageBtn');
     const closeChatBtn = document.getElementById('closeChatBtn');
+    const chatbotResponsesContainer = document.getElementById('chatbotResponsesContainer');
 
     let selectedUser = null;
 
@@ -132,6 +156,9 @@
                 });
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
+                // Load chatbot responses for the selected user
+                loadChatbotResponses(username);
+
                 // Poll for new messages every second
                 setInterval(() => {
                     fetch(`/api/agent/messages/${username}`)
@@ -148,6 +175,35 @@
                 }, 1000);
             })
             .catch(err => console.error('Error fetching messages:', err));
+    }
+
+    // Load chatbot responses for the selected user
+    function loadChatbotResponses(username) {
+        fetch(`/api/agent/responses/${username}`)
+            .then(response => response.json())
+            .then(responses => {
+                chatbotResponsesContainer.innerHTML = ''; // Clear previous responses
+
+                // Create response cards for each response
+                Object.entries(responses).forEach(([question, answer]) => {
+                    const responseCard = document.createElement('div');
+                    responseCard.className = 'responseCard';
+
+                    const questionElem = document.createElement('h4');
+                    questionElem.textContent = question;
+
+                    const answerElem = document.createElement('p');
+                    answerElem.textContent = answer;
+
+                    responseCard.appendChild(questionElem);
+                    responseCard.appendChild(answerElem);
+                    chatbotResponsesContainer.appendChild(responseCard);
+                });
+
+                // Scroll to the top of the responses section
+                chatbotResponsesContainer.scrollTop = chatbotResponsesContainer.scrollHeight;
+            })
+            .catch(err => console.error('Error fetching chatbot responses:', err));
     }
 
     // Send message as an agent
@@ -182,6 +238,7 @@
                 body: JSON.stringify({ username: selectedUser }),
             }).then(() => {
                 chatMessages.innerHTML = '';
+                chatbotResponsesContainer.innerHTML = ''; // Clear chatbot responses
                 selectedUser = null;
                 fetchActiveUsers(); // Refresh user list
             });
@@ -192,6 +249,5 @@
     setInterval(fetchActiveUsers, 5000);
     fetchActiveUsers();
 </script>
-
 </body>
 </html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Article Builder</title>
+    <style>
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #007bff;
+}
+
+/* Palette Styles */
+#palette {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.palette-item {
+    padding: 10px;
+    margin: 5px;
+    background: #007bff;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    cursor: grab;
+    transition: background 0.3s;
+}
+
+.palette-item:hover {
+    background: #0056b3; /* Darker blue on hover */
+}
+
+/* Article Styles */
+#article {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    min-height: 300px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* Button Styles */
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Input Styles */
+#articleTitle {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    #palette {
+        padding: 5px;
+    }
+
+    .palette-item {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    #articleTitle {
+        font-size: 16px;
+    }
+}
+</style>
+</head>
+<body>   
+    <h1>Drag and Drop Help Article Builder</h1>
+    <input type="text" id="articleTitle" placeholder="Enter Article Title" />
+
+    <div id="palette">
+        <h3>Palette</h3>
+        <div class="palette-item" draggable="true">Title</div>
+        <div class="palette-item" draggable="true">Paragraph</div>
+        <div class="palette-item" draggable="true">Image</div>
+        <div class="palette-item" draggable="true">List</div>
+        <div class="palette-item" draggable="true">Quote</div>
+        <div class="palette-item" draggable="true">Link</div>
+    </div>
+
+    <div id="article" contenteditable="true">
+        <h2>Drag items here</h2>
+    </div>
+
+    <button id="saveButton">Save Article</button>
+    <script>
+const paletteItems = document.querySelectorAll('.palette-item');
+const article = document.getElementById('article');
+const saveButton = document.getElementById('saveButton');
+const articleTitleInput = document.getElementById('articleTitle');
+
+// Drag and drop functionality
+paletteItems.forEach(item => {
+    item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', item.textContent);
+    });
+});
+
+article.addEventListener('dragover', (e) => {
+    e.preventDefault();
+});
+
+article.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const itemType = e.dataTransfer.getData('text/plain');
+
+    if (itemType === 'Title') {
+        const title = document.createElement('h3');
+        title.textContent = 'New Title';
+        article.appendChild(title);
+        title.contentEditable = true;
+    } else if (itemType === 'Paragraph') {
+        const paragraph = document.createElement('p');
+        paragraph.textContent = 'New Paragraph...';
+        article.appendChild(paragraph);
+        paragraph.contentEditable = true;
+    } else if (itemType === 'Image') {
+        const image = document.createElement('img');
+        image.src = prompt('Enter image URL:');
+        image.alt = 'Image';
+        article.appendChild(image);
+    } else if (itemType === 'List') {
+        const list = document.createElement('ul');
+        list.innerHTML = '<li>List Item 1</li><li>List Item 2</li>';
+        article.appendChild(list);
+        list.contentEditable = true;
+    } else if (itemType === 'Quote') {
+        const quote = document.createElement('blockquote');
+        quote.textContent = 'This is a quote...';
+        article.appendChild(quote);
+        quote.contentEditable = true;
+    } else if (itemType === 'Link') {
+        const url = prompt('Enter URL:');
+        const linkText = prompt('Enter link text:');
+        const link = document.createElement('a');
+        link.href = url;
+        link.textContent = linkText;
+        link.target = '_blank';
+        article.appendChild(link);
+    }
+});
+
+// Save functionality
+saveButton.addEventListener('click', () => {
+    const html = `
+        <h1>${articleTitleInput.value}</h1>
+        ${article.innerHTML}
+    `;
+    
+    fetch('/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ html })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+</script>
+</body>
+</html>
