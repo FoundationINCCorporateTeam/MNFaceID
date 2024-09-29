@@ -4,168 +4,252 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Chat Widget</title>
-    <style>
-        /* Base styles for the chat widget */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        
-        #chatWidget {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            width: 350px;
-            height: 500px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            transition: all 0.3s;
-            display: none; /* Initially hidden */
-        }
+  <style>
+/* Base styles for the chat widget */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
 
-        #chatHeader {
-            background-color: #007bff;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-weight: bold;
-            cursor: pointer;
-            position: relative;
-        }
+#chatWidget {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 350px;
+    height: 500px;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    transition: transform 0.3s ease;
+    transform: scale(1);
+    display: none; /* Initially hidden */
+}
 
-        #closeChat {
-            position: absolute;
-            left: 10px;
-            top: 10px;
-            background-color: red;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 12px;
-        }
+#chatWidget.open {
+    transform: scale(1.05);
+}
 
-        #closeWidget {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            padding: 5px 10px;
-            font-size: 18px;
-        }
+#chatHeader {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    position: relative;
+}
 
-        #chatMessages {
-            padding: 10px;
-            overflow-y: auto;
-            flex-grow: 1;
-            max-height: 350px;
-            display: flex;
-            flex-direction: column;
-        }
+#closeChat {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 15px;
+    width: 80px;
+    height: 30px;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .message {
-            padding: 8px;
-            border-radius: 10px;
-            margin: 5px 0;
-            max-width: 70%;
-            word-wrap: break-word;
-        }
+#closeWidget {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .user {
-            background-color: #007bff;
-            color: white;
-            align-self: flex-end;
-        }
+#chatMessages {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ccc;
+    max-height: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        .agent {
-            background-color: #f1f1f1;
-            color: black;
-            align-self: flex-start;
-        }
+.message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin: 5px 0;
+    max-width: 70%;
+    word-wrap: break-word;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        #chatInput {
-            display: flex;
-            border-top: 1px solid #ccc;
-            padding: 10px;
-        }
+.user {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+}
 
-        #chatInput input {
-            flex-grow: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            margin-right: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+.agent {
+    background-color: #e9ecef;
+    color: #333;
+    align-self: flex-start;
+}
 
-        #chatInput button {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+#chatInput {
+    display: flex;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
 
-        #preChatForm {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
+#chatInput input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    margin-right: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
 
-        #usernameInput {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            width: 80%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+#chatInput input:focus {
+    border-color: #007bff;
+    outline: none;
+}
 
-        #submitUsernameBtn {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            width: 80%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+#chatInput button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 25px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
 
-        #errorMsg {
-            color: red;
-            margin-top: 10px;
-        }
+#chatInput button:hover {
+    background-color: #0056b3;
+}
 
-        #openChatButton {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .optionButton {
+#preChatForm {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    border-radius: 10px;
+}
+    #help {
+      display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    border-radius: 10px;
+              overflow-y: auto;   /* Enables vertical scrolling if content exceeds the height */
+
+}
+    #faq {
+      display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    border-radius: 10px;
+              overflow-y: auto;   /* Enables vertical scrolling if content exceeds the height */
+}
+    #contact {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 5px;
+    border-radius: 10px;
+    overflow-y: auto;   /* Enables vertical scrolling if content exceeds the height */
+}
+
+#usernameInput {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    margin-bottom: 10px;
+    width: 80%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s;
+}
+
+#usernameInput:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+#submitUsernameBtn {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 25px;
+    width: 80%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+#submitUsernameBtn:hover {
+    background-color: #0056b3;
+}
+
+#errorMsg {
+    color: red;
+    margin-top: 10px;
+}
+
+#openChatButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+#openChatButton:hover {
+    transform: scale(1.1);
+    background-color: #0056b3;
+}
+
+.optionButton {
     background-color: #007bff;
     color: white;
     border: none;
@@ -173,18 +257,335 @@
     padding: 10px;
     margin: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-    </style>
+.optionButton:hover {
+    background-color: #0056b3;
+}
+
+.input {
+    width: 90%;
+    padding: 12px 15px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+@media (max-width: 600px) {
+    #chatWidget {
+        width: 100%;
+        right: 0;
+        border-radius: 0;
+        height: 100%;
+        bottom: 0;
+    }
+
+    #openChatButton {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+    }
+
+    .styled-input {
+        max-width: 100%;
+        font-size: 14px;
+    }
+}
+      /* Base styles for the bottom nav bar */
+#bottomNavBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #fff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    border-top: 1px solid #ddd;
+}
+
+/* Each navigation item container */
+.navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    width: 80px;
+    padding: 5px;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Icons inside the nav items */
+.navItem i {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #007bff;
+}
+
+/* When an item is hovered or active */
+.navItem:hover, .navItem.active {
+    color: #007bff;
+    transform: translateY(-5px); /* Lift the item slightly on hover */
+}
+
+.navItem:hover i, .navItem.active i {
+    color: #0056b3;
+}
+
+/* Responsive styling for smaller devices */
+@media (max-width: 600px) {
+    #bottomNavBar {
+        height: 50px;
+    }
+
+    .navItem {
+        font-size: 12px;
+    }
+
+    .navItem i {
+        font-size: 20px;
+    }
+}
+    .section {
+    padding: 20px;
+    margin-bottom: 50px 0;
+    background-color: #fff;
+}
+/* Base styles for the FAQ section */
+.faq-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.faq-container h2 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+/* Styling for individual FAQ items */
+.faq-item {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.faq-question h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.faq-icon {
+    font-size: 1.5em;
+    transition: transform 0.3s ease;
+}
+
+/* Hidden by default until the question is clicked */
+.faq-answer {
+    padding: 0 15px 15px;
+    display: none;
+    color: #333;
+    background-color: #f1f1f1;
+    border-top: 1px solid #ddd;
+}
+
+.faq-answer p {
+    margin: 0;
+}
+
+/* Opened state for FAQ items */
+.faq-item.open .faq-answer {
+    display: block;
+}
+
+.faq-item.open .faq-icon {
+    transform: rotate(45deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .faq-container {
+        padding: 15px;
+    }
+
+    .faq-question h3 {
+        font-size: 1em;
+    }
+
+    .faq-question {
+        padding: 10px;
+    }
+}
+    #contactForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#contactForm input,
+#contactForm textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+#contactForm button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#contactForm button:hover {
+    background-color: #0056b3;
+    }
+#search {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.article-card {
+    background-color: #99b8ff;
+    width: 300px;
+    text-align: center;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.article-card:hover {
+    background-color: #e1e1e1;
+}
+
+#articleDisplay {
+    position: fixed;
+    height: 75%;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.back-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+.chat-callout {
+    position: fixed;
+    bottom: 100px; /* Adjust to raise the callout */
+    right: 20px; /* Adjust as needed */
+    background-color: #007bff; /* Chat color */
+    color: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    width: 250px; /* Set width as needed */
+    z-index: 1000; /* Ensure it's on top */
+    cursor: pointer; /* Change cursor to indicate clickable */
+}
+
+.callout-content {
+    flex: 1;
+}
+
+.callout-content p {
+    margin: 0; /* Remove default margin */
+    font-size: 18px; /* Adjust font size */
+}
+    .closecallout {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: red; /* Red background */
+    color: white; /* White text */
+    border-radius: 50%; /* Circular shape */
+    width: 24px; /* Circle size */
+    height: 24px; /* Circle size */
+    display: flex; /* Center icon */
+    align-items: center; /* Center icon vertically */
+    justify-content: center; /* Center icon horizontally */
+    position: absolute; /* Absolute positioning */
+    top: 5px; /* Position from the top */
+    right: 5px; /* Position from the right */
+}
+    #chatWidget.show {
+    display: flex; /* Show the widget */
+    opacity: 1; /* Final opacity */
+    transform: translateY(0); /* Move to original position */
+}
+  </style>
 </head>
 <body>
-
-<button id="openChatButton"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40px" height="40px" viewBox="0 0 40 40" version="1.1">
+<button id="openChatButton"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40px" height="40px" viewbox="0 0 40 40" version="1.1">
     <g id="surface1">
     <path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 35.90625 38.160156 C 35.605469 38.160156 35.308594 38.074219 35.050781 37.917969 L 27.820312 33.597656 C 25.320312 34.539062 22.671875 35.019531 20 35.011719 C 9.269531 35.011719 0.542969 27.472656 0.542969 18.207031 C 0.542969 8.941406 9.269531 1.402344 20 1.402344 C 30.730469 1.402344 39.457031 8.941406 39.457031 18.207031 C 39.457031 22.292969 37.78125 26.160156 34.707031 29.214844 L 37.457031 35.800781 C 37.738281 36.476562 37.558594 37.257812 37.011719 37.738281 C 36.699219 38.015625 36.304688 38.160156 35.90625 38.160156 Z M 27.964844 30.015625 C 28.261719 30.015625 28.558594 30.097656 28.824219 30.253906 L 32.378906 32.378906 L 31.152344 29.433594 C 30.867188 28.753906 31.050781 27.96875 31.605469 27.488281 C 34.503906 24.972656 36.097656 21.675781 36.097656 18.207031 C 36.097656 10.808594 28.875 4.792969 20 4.792969 C 11.125 4.792969 3.902344 10.808594 3.902344 18.207031 C 3.902344 25.597656 11.125 31.617188 20 31.617188 C 22.570312 31.617188 25.027344 31.121094 27.308594 30.148438 C 27.519531 30.058594 27.742188 30.015625 27.964844 30.015625 Z M 10.191406 18.363281 C 10.199219 17.152344 11.183594 16.175781 12.394531 16.175781 C 13.605469 16.191406 14.582031 17.175781 14.574219 18.386719 C 14.574219 19.605469 13.601562 20.589844 12.394531 20.597656 C 11.183594 20.597656 10.199219 19.621094 10.195312 18.410156 L 10.195312 18.367188 Z M 17.476562 18.363281 C 17.476562 19.613281 18.480469 20.628906 19.71875 20.628906 C 20.964844 20.621094 21.964844 19.609375 21.960938 18.363281 C 21.964844 17.121094 20.964844 16.109375 19.71875 16.105469 C 18.476562 16.109375 17.472656 17.121094 17.476562 18.363281 Z M 24.761719 18.363281 C 24.769531 17.152344 25.753906 16.175781 26.964844 16.175781 C 28.175781 16.191406 29.148438 17.175781 29.144531 18.386719 C 29.144531 19.605469 28.171875 20.589844 26.964844 20.597656 C 25.753906 20.597656 24.769531 19.621094 24.761719 18.410156 Z M 24.761719 18.363281 "/>
     </g>
     </svg>
     </button>
+   <!-- Chat Callout -->
+    <div id="chatCallout" class="chat-callout">
+        <div class="callout-content">
+            <p>Need help? Chat with us!</p>
+            <span class="closecallout" id="closeCallout">&times;</span>
+        </div>
+    </div>
 
     <div id="chatWidget">
         <div id="chatHeader">
@@ -193,266 +594,531 @@
             <button id="closeChat">End Chat</button>
         </div>
         
-        <div id="preChatForm">
+        <div id="preChatForm" class="section">
+          <h2>
+            Hi! 👋 Were here to help!
+          </h2>
+          <p style="text-align: center;">
+            To get started enter a username below and we'll connect you with an agent!
+          </p>
             <h3>Please enter your username</h3>
             <input type="text" id="usernameInput" placeholder="Username..." />
             <button id="submitUsernameBtn">Start Chat</button>
             <div id="errorMsg"></div>
         </div>
-    
+              <div id="bottomNavBar">
+    <a href="#" class="navItem" onclick="openSection('preChatForm')">
+        <i class="fas fa-home">💬</i>
+        <span>Chat</span>
+    </a>
+    <a href="#" class="navItem" onclick="openSection('help')">
+        <i class="fas fa-search">📢</i>
+        <span>Help Center</span>
+    </a>
+    <a href="#" class="navItem" onclick="openSection('faq')">
+        <i class="fas fa-bell">❓</i>
+        <span>FAQ</span>
+    </a>
+    <a href="#" class="navItem" onclick="openSection('contact')">
+        <i class="fas fa-user">✉️</i>
+        <span>Contact Us</span>
+    </a>
+</div>
+     <div id="help" class="section" style="display: none;">
+        <h2>Help Center</h2>
+        <input type="text" id="search" placeholder="Search articles...">
+        <div id="articleCards"></div>
+        <div id="articleDisplay" style="display: none;">
+            <button id="backButton" class="back-button">← Back</button>
+            <div id="articleContent"></div>
+        </div>
+    </div>
+
+<div id="faq" class="section" style="display: none;">
+  <div class="faq-container">
+            <h2>FAQ</h2>
+    <p>Below are some frequently asked questions that we get!</p>
+    <h2>Frequently Asked Questions</h2>
+<div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h3>What if MN Games gets blocked?</h3>
+            <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-answer">
+            <p>If MN Games does get blocked our development team will work hard to help get MN Games back up and running. Just know if there is a problem that needs solving we will communicate it to the public.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h3>How do I suggest a game?</h3>
+            <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-answer">
+            <p>To suggest a game please click the feedback button and select Game Request.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h3>How do I get MN Games+?</h3>
+            <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-answer">
+            <p>As of now MN Games+ is still in late development. It will be released in the near future.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+            <h3>How do I report a problem?</h3>
+            <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-answer">
+            <p>To report a problem, please either contact us using our contact form, feedback widget, or live chat.</p>
+        </div>
+    </div>
+    <p>
+      Need more help? Contact Us or start a chat with one of our agents!
+    </p>
+</div>
+
+</div>
+<div id="contact" class="section" style="display: none;">
+    <h2>Contact Us</h2>
+    <p style="text-align:center;">
+      Need some help or missed our chat hours? Drop us a message!
+  </p>
+    <form id="contactForm">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <input type="email" id="email" placeholder="Your Email" required>
+        <textarea id="message" placeholder="Your Message" required></textarea>
+        <button type="submit" id="sendMessageButton">Send Message</button>
+    </form>
+    <div id="responseMessage" style="display: none;"></div>
+      </div>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            const response = await fetch('/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, message })
+            });
+
+            const data = await response.text();
+            document.getElementById('responseMessage').innerText = data;
+            document.getElementById('responseMessage').style.display = 'block';
+        });
+    </script>
         <div id="chatMessages"></div>
     
         <div id="chatInput" style="display:none;">
             <input type="text" id="messageInput" placeholder="Type a message..." />
-            <button id="sendMessageBtn">Send</button>
+            <button id="sendMessageBtn">➤</button>
         </div>
-    </div>
-    
-    <script>
-        const chatWidget = document.getElementById('chatWidget');
-        const openChatButton = document.getElementById('openChatButton');
-        const closeChatBtn = document.getElementById('closeChat');
-        const closeWidgetBtn = document.getElementById('closeWidget');
-        const submitUsernameBtn = document.getElementById('submitUsernameBtn');
-        const usernameInput = document.getElementById('usernameInput');
-        const errorMsg = document.getElementById('errorMsg');
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const messageInput = document.getElementById('messageInput');
-        const sendMessageBtn = document.getElementById('sendMessageBtn');
-    
-        let username = localStorage.getItem('chatUsername') || null;
-    
-        // Open chat widget
-        openChatButton.addEventListener('click', () => {
-            chatWidget.style.display = 'flex'; // Show chat widget
-            if (!username) {
-                usernameInput.focus();
-            } else {
-                // If username exists, show chat directly
-                document.getElementById('preChatForm').style.display = 'none';
-                chatInput.style.display = 'flex'; // Show chat input
-                startPolling(); // Start polling messages
-            }
-        });
-    
-        // Close widget
-        closeWidgetBtn.addEventListener('click', () => {
-            chatWidget.style.display = 'none'; // Hide chat widget
-        });
-    
-        // End chat and clear username
-        closeChatBtn.addEventListener('click', () => {
-            if (username) {
-                // Remove username from localStorage
-                localStorage.removeItem('chatUsername');
-                // Remove session from sessions.json
-                fetch('/api/deleteSession', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username: username }),
-                }).then(() => {
-                    // Hide chat messages and input
-                    chatMessages.innerHTML = ''; // Clear messages
-                    chatInput.style.display = 'none'; // Hide chat input
-                    username = null; // Reset username
-                    document.getElementById('preChatForm').style.display = 'flex'; // Show pre-chat form
-                    errorMsg.textContent = ''; // Clear error message
-                    usernameInput.value = ''; // Clear username input
-                });
-            }
-        });
-        function displayWelcomeMessage() {
-    const welcomeMessage = {
-        username: "SmarterThanNolanBot",
-        message: "Welcome to the chat! How can I assist you today?"
-    };
+  </div>
+<script>
+    const chatWidget = document.getElementById('chatWidget');
+    const openChatButton = document.getElementById('openChatButton');
+    const closeChatBtn = document.getElementById('closeChat');
+    const closeWidgetBtn = document.getElementById('closeWidget');
+    const submitUsernameBtn = document.getElementById('submitUsernameBtn');
+    const usernameInput = document.getElementById('usernameInput');
+    const errorMsg = document.getElementById('errorMsg');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const messageInput = document.getElementById('messageInput');
+    const sendMessageBtn = document.getElementById('sendMessageBtn');
 
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message agent'; // 'agent' class for bot messages
-    messageDiv.textContent = `${welcomeMessage.username}: ${welcomeMessage.message}`;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
-}
-// Define chatbot questions and flow
-const chatbotQuestions = [
-    {
-        type: 'text',
-        question: "What is your name?",
-        id: 'userName'
-    },
-    {
-        type: 'email',
-        question: "Please provide your email:",
-        id: 'userEmail'
-    },
-    {
-        type: 'buttons',
-        question: "How can we assist you today?",
-        options: ['Support', 'Sales', 'Other'],
-        id: 'assistanceType'
-    }
-];
+    let username = localStorage.getItem('chatUsername') || null;
 
-let chatbotResponses = {};
-let currentQuestionIndex = 0;
-
-// Function to display chatbot questions
-function showChatbotQuestion() {
-    if (currentQuestionIndex < chatbotQuestions.length) {
-        const currentQuestion = chatbotQuestions[currentQuestionIndex];
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message agent';
-        messageDiv.textContent = `SmarterThanNolanBot: ${currentQuestion.question}`;
-        chatMessages.appendChild(messageDiv);
-
-        // Display appropriate input field
-        if (currentQuestion.type === 'text' || currentQuestion.type === 'email') {
-            const inputField = document.createElement('input');
-            inputField.type = currentQuestion.type;
-            inputField.id = currentQuestion.id;
-            inputField.placeholder = currentQuestion.question;
-            inputField.style.marginTop = '5px';
-            chatMessages.appendChild(inputField);
-        } else if (currentQuestion.type === 'buttons') {
-            currentQuestion.options.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option;
-                button.className = 'optionButton';
-                button.onclick = () => handleButtonResponse(option);
-                chatMessages.appendChild(button);
-            });
-        }
-
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+// Open chat widget
+openChatButton.addEventListener('click', () => {
+    chatWidget.style.display = 'flex'; // Show chat widget
+    document.getElementById('closeChat').style.display = 'none'; // Hide close button initially
+    if (!username) {
+        usernameInput.focus();
     } else {
-        // All questions answered, hide chatbot and open normal chat with agent
-        document.getElementById('chatInput').style.display = 'flex';
-        sendChatbotResponsesToAgent();
-    }
-}
-
-// Handle button response
-function handleButtonResponse(option) {
-    chatbotResponses[chatbotQuestions[currentQuestionIndex].id] = option;
-    currentQuestionIndex++;
-    showChatbotQuestion();
-}
-
-// Handle text or email response
-chatMessages.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && currentQuestionIndex < chatbotQuestions.length) {
-        const currentQuestion = chatbotQuestions[currentQuestionIndex];
-        const inputField = document.getElementById(currentQuestion.id);
-        const value = inputField.value.trim();
-
-        if (currentQuestion.type === 'email' && !validateEmail(value)) {
-            alert("Please enter a valid email address.");
-        } else {
-            chatbotResponses[currentQuestion.id] = value;
-            currentQuestionIndex++;
-            showChatbotQuestion();
-        }
+        document.getElementById('preChatForm').style.display = 'none';
+        document.getElementById('bottomNavBar').style.display = 'none';
+        chatInput.style.display = 'flex'; // Show chat input
+        startPolling(); // Start polling messages
     }
 });
 
-// Email validation function
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
+// script.js
+document.addEventListener('DOMContentLoaded', () => {
+    const articleCards = document.getElementById('articleCards');
+    const articleDisplay = document.getElementById('articleDisplay');
+    const articleContent = document.getElementById('articleContent');
+    const searchInput = document.getElementById('search');
+    const backButton = document.getElementById('backButton');
+
+    // Fetch articles and create cards
+    fetch('/articles')
+        .then(response => response.json())
+        .then(articles => {
+            articles.forEach(article => {
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.textContent = article.title;
+                card.addEventListener('click', () => loadArticle(article.id));
+                articleCards.appendChild(card);
+            });
+        });
+
+    // Load the selected article
+    function loadArticle(id) {
+        articleDisplay.style.display = 'block';
+        articleCards.style.display = 'none';
+        fetch(`/articles/${id}`)
+            .then(response => response.text())
+            .then(html => {
+                articleContent.innerHTML = html;
+            });
+    }
+
+    // Search functionality
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        const cards = document.querySelectorAll('.article-card');
+        cards.forEach(card => {
+            if (card.textContent.toLowerCase().includes(filter)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Back button functionality
+    backButton.addEventListener('click', () => {
+        articleDisplay.style.display = 'none';
+        articleCards.style.display = 'block';
+    });
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const chatCallout = document.getElementById('chatCallout');
+    const closeCallout = document.getElementById('closeCallout');
+    const openChatButton = document.getElementById('openChatButton');
+    const chatWidget = document.getElementById('chatWidget');
+
+    // Create an audio object
+    const sound = new Audio('https://cdn.glitch.global/bcf5b7a4-f203-4a91-84a6-b860832659fe/callout.mp3?v=1727568199425');
+
+    // Flag to track if the callout has been shown
+    let calloutShown = false;
+
+    // Function to play audio
+    function playAudio() {
+        sound.play().catch((error) => {
+            console.error('Error playing sound:', error);
+        });
+    }
+
+    // Show the chat callout when the user interacts with the document
+    document.addEventListener('click', () => {
+        if (!calloutShown) {
+            chatCallout.style.display = 'flex'; // Show chat callout
+            playAudio(); // Play the audio
+            calloutShown = true; // Set the flag to true to prevent it from showing again
+        }
+    });
+
+    // Event listener to open the chat widget when the callout is clicked
+    chatCallout.addEventListener('click', () => {
+        chatWidget.style.display = 'flex'; // Show chat widget
+        chatCallout.style.display = 'none'; // Hide callout
+    });
+
+    // Event listener to close the chat callout
+    closeCallout.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent the event from bubbling up
+        chatCallout.style.display = 'none'; // Hide callout
+    });
+
+    // Optional: If you want to allow the user to click the open chat button to dismiss the callout
+    openChatButton.addEventListener('click', () => {
+        chatCallout.style.display = 'none';
+    });
+});
+
+
+  const sendMessageButton = document.getElementById('sendMessageButton');
+let cooldown = false; // Cooldown state
+const cooldownTime = 30000; // Cooldown duration in milliseconds (3 seconds)
+
+// Event listener for the form submission
+document.getElementById('contactForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
+
+    if (cooldown) {
+        console.log("Please wait..."); // Inform the user they need to wait
+        return; // Exit the function if in cooldown state
+    }
+
+    // Perform the button action (e.g., send the message)
+    console.log("Message sent!");
+
+    // Set cooldown state to true
+    cooldown = true;
+
+    // Disable the button for visual feedback
+    sendMessageButton.disabled = true;
+
+    // Optional: Add some style to indicate cooldown
+    sendMessageButton.style.opacity = 0.5;
+
+    // Start the cooldown timer
+    setTimeout(() => {
+        cooldown = false; // Reset cooldown state
+        sendMessageButton.disabled = false; // Enable the button again
+        sendMessageButton.style.opacity = 1; // Reset style
+    }, cooldownTime);
+});
+
+
+// Function to toggle the FAQ answer
+function toggleFAQ(element) {
+    const faqItem = element.parentElement;
+    faqItem.classList.toggle('open');
+    
+    const allFAQItems = document.querySelectorAll('.faq-item');
+    allFAQItems.forEach(item => {
+        if (item !== faqItem) {
+            item.classList.remove('open');
+        }
+    });
+}
+    // Close widget
+    closeWidgetBtn.addEventListener('click', () => {
+        chatWidget.style.display = 'none'; // Hide chat widget
+    });
+
+    // End chat and clear username
+    closeChatBtn.addEventListener('click', () => {
+        if (username) {
+            localStorage.removeItem('chatUsername');
+            fetch('/api/deleteSession', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username }),
+            }).then(() => {
+                chatMessages.innerHTML = ''; // Clear messages
+                chatInput.style.display = 'none'; // Hide chat input
+                username = null; // Reset username
+                document.getElementById('preChatForm').style.display = 'flex';
+                document.getElementById('bottomNavBar').style.display = 'flex';
+                document.getElementById('closeChat').style.display = 'none';// Show pre-chat form
+                errorMsg.textContent = ''; // Clear error message
+                usernameInput.value = ''; // Clear username input
+                chatbotResponses = {}; // Clear chatbot responses
+                currentQuestionIndex = 0; // Reset question index
+            });
+        }
+    });
+  function openSection(sectionId) {
+    // Hide all sections
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show the selected section
+    const selectedSection = document.getElementById(sectionId);
+    selectedSection.style.display = 'flex';
 }
 
-// Send chatbot responses to the agent (hidden from the user)
-function sendChatbotResponsesToAgent() {
-    fetch('/api/sendChatbotResponses', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: username, responses: responses }),
-    }).then(response => response.json())
-      .then(data => {
-          console.log(data.message);  // Chatbot responses sent successfully
-      });
-}
 
-submitUsernameBtn.addEventListener('click', () => {
-    const enteredUsername = usernameInput.value.trim();
-    if (enteredUsername) {
-        fetch('/api/checkUsername', {
+    // Function to display the welcome message
+    function displayWelcomeMessage() {
+        const welcomeMessage = {
+            username: "SmarterThanNolanBot",
+            message: "Welcome to the MN Games Support Chat! Me and my team are here to help!"
+        };
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message agent';
+        messageDiv.textContent = `${welcomeMessage.username}: ${welcomeMessage.message}`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+    }
+
+    // Chatbot questions and flow
+    const chatbotQuestions = [
+        { type: 'text', question: "What is your real name?", id: 'Name' },
+        { type: 'email', question: "Please provide your email:", id: 'Email' },
+        { type: 'buttons', question: "Please pick a department to help you!", options: ['Support', 'Sales', 'Moderation', 'Tech', 'Other'], id: 'Assistance Type' }
+    ];
+
+    let chatbotResponses = {};
+    let currentQuestionIndex = 0;
+
+    // Function to start the chatbot flow
+    function startChatbotFlow() {
+        chatbotResponses = {}; // Clear previous responses
+        currentQuestionIndex = 0; // Reset question index
+        chatMessages.innerHTML = ''; // Clear chat messages
+        displayWelcomeMessage(); // Show welcome message
+        showChatbotQuestion(); // Show the first question
+    }
+
+    // Function to display chatbot questions
+    function showChatbotQuestion() {
+        if (currentQuestionIndex < chatbotQuestions.length) {
+            const currentQuestion = chatbotQuestions[currentQuestionIndex];
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message agent';
+            messageDiv.textContent = `SmarterThanNolanBot: ${currentQuestion.question}`;
+            chatMessages.appendChild(messageDiv);
+
+            if (currentQuestion.type === 'text' || currentQuestion.type === 'email') {
+                const inputField = document.createElement('input');
+                inputField.type = currentQuestion.type;
+                inputField.id = currentQuestion.id;
+                inputField.placeholder = currentQuestion.question;
+                inputField.style.marginTop = '5px';
+                inputField.classList.add("input");
+                chatMessages.appendChild(inputField);
+
+                inputField.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        const value = inputField.value.trim();
+                        if (currentQuestion.type === 'email' && !validateEmail(value)) {
+                            alert("Please enter a valid email address.");
+                        } else {
+                            chatbotResponses[currentQuestion.id] = value;
+                            inputField.style.display = 'none'; // Hide input field after response
+                            currentQuestionIndex++;
+                            showChatbotQuestion();
+                        }
+                    }
+                });
+            } else if (currentQuestion.type === 'buttons') {
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'optionButton';
+                    button.onclick = () => {
+                        chatbotResponses[currentQuestion.id] = option;
+                        button.parentNode.childNodes.forEach((child) => {
+                            if (child.tagName === 'BUTTON') {
+                                child.style.display = 'none'; // Hide all buttons after selection
+                            }
+                        });
+                        currentQuestionIndex++;
+                        showChatbotQuestion();
+                    };
+                    chatMessages.appendChild(button);
+                });
+            }
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } else {
+            chatInput.style.display = 'flex'; // Show chat input
+            sendChatbotResponsesToAgent();  // Send responses to agent
+        }
+    }
+
+    // Email validation function
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    // Define sendChatbotResponsesToAgent function
+    function sendChatbotResponsesToAgent() {
+        fetch('/api/sendChatbotResponses', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username: enteredUsername }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, responses: chatbotResponses })
         })
         .then(response => response.json())
         .then(data => {
-            if (data.exists) {
-                errorMsg.textContent = 'Username already exists. Please choose a different username.';
-            } else {
-                fetch('/api/addSession', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username: enteredUsername }),
-                }).then(response => {
-                    if (response.ok) {
-                        username = enteredUsername; // Set username
-                        localStorage.setItem('chatUsername', username);
-                        document.getElementById('preChatForm').style.display = 'none';
-                        chatMessages.innerHTML = ''; // Clear chat for chatbot
-                        
-                        // Start the chatbot flow
-                        showChatbotQuestion();
-                    } else {
-                        errorMsg.textContent = 'Error creating session. Please try again.';
-                    }
-                });
-            }
+            console.log(data.message);  // Log success message
         });
     }
-});
 
-        // Send a message
-        sendMessageBtn.addEventListener('click', () => {
-            const message = messageInput.value.trim();
-            if (message && username) {
-                const payload = {
-                    username: username,
-                    message: message
-                };
-    
-                fetch('/api/sendMessage', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                }).then(() => {
-                    messageInput.value = ''; // Clear input field
-                });
-            }
-        });
-    
- // Polling function to get messages
+    submitUsernameBtn.addEventListener('click', () => {
+        const enteredUsername = usernameInput.value.trim();
+        if (enteredUsername) {
+            fetch('/api/checkUsername', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: enteredUsername })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    errorMsg.textContent = 'Username already exists. Please choose a different username.';
+                } else {
+                    fetch('/api/addSession', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: enteredUsername })
+                    }).then(response => {
+                        if (response.ok) {
+                            username = enteredUsername;
+                            localStorage.setItem('chatUsername', username);
+                            document.getElementById('preChatForm').style.display = 'none';
+                            document.getElementById('bottomNavBar').style.display = 'none';
+                            document.getElementById('closeChat').style.display = 'flex';
+                            startChatbotFlow(); // Start the chatbot flow
+                            chatInput.style.display = 'flex'; // Show chat input
+                            startPolling(); // Start polling messages
+                        } else {
+                            errorMsg.textContent = 'Error creating session. Please try again.';
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    // Send a message
+    sendMessageBtn.addEventListener('click', () => {
+        const message = messageInput.value.trim();
+        if (message && username) {
+            const payload = { username: username, message: message };
+            fetch('/api/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                messageInput.value = ''; // Clear input field
+            });
+        }
+    });
+
+// Polling function to get messages
 function pollMessages() {
     fetch('/api/getMessages')
         .then(response => response.json())
         .then(data => {
-            // Loop through the incoming messages
             data.forEach(msg => {
-                // Check if the message already exists in the chat
-                const existingMessage = Array.from(chatMessages.children).some(child => child.textContent === `${msg.username}: ${msg.message}`);
-
-                // If it does not exist, append it to the chatMessages div
+                const existingMessage = Array.from(chatMessages.children).some(child => child.textContent === `${msg.username}: ${msg.message}` || (msg.agent && child.textContent === `Agent: ${msg.message}`));
+                
                 if (!existingMessage) {
                     const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message ' + (msg.username === 'SmarterThanNolanBot' ? 'agent' : 'user');
-                    messageDiv.textContent = `${msg.username}: ${msg.message}`;
+                    if (msg.agent) {
+                        // If the message is from the agent
+                        messageDiv.className = 'message agent';
+                        messageDiv.textContent = `Agent: ${msg.message}`;
+                    } else {
+                        // If the message is from the user
+                        messageDiv.className = 'message user';
+                        messageDiv.textContent = `${msg.username}: ${msg.message}`;
+                    }
                     chatMessages.appendChild(messageDiv);
                 }
             });
@@ -461,10 +1127,9 @@ function pollMessages() {
         });
 }
 
-    
-        function startPolling() {
-            setInterval(pollMessages, 1000); // Poll every second
-        }
-    </script>
+    function startPolling() {
+        setInterval(pollMessages, 1000); // Poll every second
+    }
+</script>
     </body>
     </html>
